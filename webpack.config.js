@@ -6,6 +6,8 @@ const NpmInstallPlugin = require('npm-install-webpack-plugin')
 
 const merge = require('webpack-merge');
 
+const pkg = require('./package.json')
+
 const TARGET = process.env.npm_lifecycle_event;
 
 const PATHS = {
@@ -27,7 +29,7 @@ const common = {
   },
   output: {
     path: PATHS.build,
-    filename: 'bundle.js'
+    filename: '[name].js'
   },
   module: {
     loaders: [
@@ -51,25 +53,11 @@ if(TARGET === 'start' || !TARGET) {
   module.exports = merge(common, {
     devServer: {
       contentBase: PATHS.build,
-
-      // Enable history API fallback so HTML5 History API based
-      // routing works. This is a good default that will come
-      // in handy in more complicated setups.
       historyApiFallback: true,
       hot: true,
       inline: true,
       progress: true,
-
-      // Display only errors to reduce the amount of output.
       stats: 'errors-only',
-
-      // Parse host and port from env so this is easy to customize.
-      //
-      // If you use Vagrant or Cloud9, set
-      // host: process.env.HOST || '0.0.0.0';
-      //
-      // 0.0.0.0 is available to all network devices unlike default
-      // localhost
       host: process.env.HOST,
       port: process.env.PORT
     },
@@ -80,9 +68,28 @@ if(TARGET === 'start' || !TARGET) {
         save: true // --save
       })
     ]
-  });
+  })
 }
 
 if(TARGET === 'build') {
-  module.exports = merge(common, {});
+  module.exports = merge(common, {
+    entry: {
+      vendor: Object.keys(pkg.dependencies).filter(function(v) {
+        return v !== 'alt-utils'
+      })
+    },
+    plugins: [
+      new webpack.optimize.UglifyJsPlugin({
+        compress: {
+          warnings: false
+        }
+      }),
+      new webpack.DefinePlugin({
+        'process.env.NODE_ENV': '"production"'
+      }),
+      new webpack.optimize.CommonsChunkPlugin({
+        names: ['vendor', 'manifest']
+      })
+    ]
+  })
 }
