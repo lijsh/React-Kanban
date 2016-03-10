@@ -34,7 +34,7 @@ body {
 }
 
 .lane-name input {
-  max-width: 7em;
+  max-width: 6em;
 }
 
 .lane-add-note {
@@ -91,7 +91,7 @@ body {
   box-shadow: 0 0 0.3em 0.03em rgba(0, 0, 0, 0.3);
 }
 .note input {
-  max-width: 10em;
+  max-width: 9em;
 }
 .note:hover {
   box-shadow: 0 0 0.3em 0.03em rgba(0, 0, 0, 0.7);
